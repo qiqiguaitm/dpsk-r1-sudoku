@@ -5,6 +5,7 @@ base_model=$1 ##Qwen2.5-7B-Instruct-1M,Qwen2.5-14B-Instruct-1M,Mistral-Small-24B
 max_response_length=$2 # 2048,4096,    8192(risk to oom)
 resumed_task_id=$3
 
+base_training_steps=1  #default:300
 #########testing#########
 base_model=Qwen2.5-7B-Instruct-1M
 max_response_length=512
@@ -20,7 +21,7 @@ resume_task_id=x-1738853032
 
 
 
-base_training_steps=3  #default:300
+
 
 export N_GPUS=8
 if [[ -n "$DIST_MODE" ]] && [[ "$DIST_MODE" -eq 1 ]]; then
@@ -40,7 +41,7 @@ if [ -n "$resume_task_id" ];then
 fi
 
 
-:<<TEST
+
 echo "--------------step 0: all tasks boiling  ---------------------"
 export temperature=1.2
 export top_p=1.0
@@ -60,7 +61,7 @@ else
     exit 1
 fi
 echo "--------------medium tasks---------------------"
-pre_task=step0_boiling_simple'
+pre_task='step0_boiling_simple'
 cur_task='step0_boiling_medium'
 task_steps=$((base_training_steps * 1))
 echo base_model cur_task max_response_length task_id pre_task task_steps
@@ -85,8 +86,6 @@ else
     echo $cur_task fail
     exit 1
 fi
-TEST
-
 
 
 echo "--------------step 1: hard tasks anneling ---------------------"
