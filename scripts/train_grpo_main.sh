@@ -8,6 +8,7 @@ if [ -z "$TASK_ID" ]; then
 fi
 CUR_TASK=${4:-step0_boiling_simple}  #defalut:step0_boiling_simple
 PRE_TASK=${5:-''}
+TOT_TRAIN_STEPS=${6:-500}
 
 temperature=${temperature:-1}
 top_p=${top_p:-1}
@@ -81,6 +82,7 @@ echo prompt,response:$max_prompt_length,$max_response_length
 echo wandb:$WANDB_DIR
 echo nodes,gpus,tp_sz:$N_NODES, $N_GPUS, $TP_SZ
 echo temperature,top_p,top_k:$temperature,$top_p,$top_k
+echo total_training_steps:$TOT_TRAIN_STEPS
 
 echo "----------------------------------------------------"
 
@@ -130,7 +132,7 @@ python3 -m verl.trainer.main_ppo \
     trainer.nnodes=$N_NODES \
     trainer.save_freq=8 \
     trainer.test_freq=8 \
-    trainer.total_training_steps=3 \
+    trainer.total_training_steps=$TOT_TRAIN_STEPS \
     trainer.total_epochs=15 2>&1 | tee $EXP_SAVE_DIR/dpsk-zero.log
 
 
