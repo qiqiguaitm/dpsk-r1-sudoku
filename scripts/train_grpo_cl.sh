@@ -53,7 +53,7 @@ else
 fi
 echo "--------------medium tasks---------------------"
 pre_task=$cur_task
-cur_task=’step0_boiling_medium‘
+cur_task='step0_boiling_medium'
 echo $base_model $cur_task $max_response_length $task_id $pre_task
 bash $WORK_DIR/verl/scripts/train_grpo_main.sh $base_model $max_response_length  $task_id $cur_task  $pre_task
 if [ $? -eq 0 ]; then

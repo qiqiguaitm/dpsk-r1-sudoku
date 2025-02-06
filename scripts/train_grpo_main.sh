@@ -24,7 +24,7 @@ if [ -z "$PRE_TASK" ]; then
 else
     PRE_CKPT_PATH=$WORK_DIR/EXP_NAS_DIR/${PROJ_NAME}-${TASK_ID}-${BASE_MODEL}-${PRE_TASK}-${N_NODES}-${N_GPUS}/actor/
     echo $PRE_CKPT_PATH
-    source funcs.sh
+    source $WORK_DIR/verl/scripts/funcs.sh
     MODEL_PATH=$(get_newest_dir $PRE_CKPT_PATH)
 fi
 
