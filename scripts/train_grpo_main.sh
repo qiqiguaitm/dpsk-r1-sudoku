@@ -62,13 +62,14 @@ elif [ $BASE_MODEL = "Qwen2.5-14B-Instruct-1M" ]; then
     TP_SZ=4
 elif [ $BASE_MODEL = "Mistral-Small-24B-Instruct-2501" ]; then
     TP_SZ=8
+elif [ $BASE_MODEL = "DeepSeek-R1-Distill-Qwen-32B" ]; then
+    TP_SZ=8
 fi
 
 #----------------------------------------------------
 export WANDB_API_KEY=e3dbe6853df66b090caae1511be35154c005d3c1
 export WANDB_MODE=offline
 export WANDB_DIR=$EXP_SAVE_DIR
-wandb init -p $WANDB_DIR/wandb
 #----------------------------------------------------
 
 
