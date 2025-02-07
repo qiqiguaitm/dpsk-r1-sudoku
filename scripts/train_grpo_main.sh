@@ -1,4 +1,6 @@
 #set -x
+export VLLM_ATTENTION_BACKEND=XFORMERS
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 #----------------------------------------------------
 BASE_MODEL=${1:-Qwen2.5-7B-Instruct-1M} #Qwen2.5-7B-Instruct-1M,Qwen2.5-14B-Instruct-1M,Mistral-Small-24B-Instruct-2501
 MAX_RESP_LEN=${2:-4096}  #default:4096
@@ -58,12 +60,20 @@ max_prompt_length=512
 max_response_length=$MAX_RESP_LEN  #default 4096
 if [ $BASE_MODEL = "Qwen2.5-7B-Instruct-1M" ]; then
     TP_SZ=2
+    BASE_BATCH_SZ=16
+    gpu_memory_utilization=0.6
 elif [ $BASE_MODEL = "Qwen2.5-14B-Instruct-1M" ]; then
     TP_SZ=4
+    BASE_BATCH_SZ=16
+    gpu_memory_utilization=0.6
 elif [ $BASE_MODEL = "Mistral-Small-24B-Instruct-2501" ]; then
     TP_SZ=8
+    BASE_BATCH_SZ=16
+    gpu_memory_utilization=0.4
 elif [ $BASE_MODEL = "DeepSeek-R1-Distill-Qwen-32B" ]; then
     TP_SZ=8
+    BASE_BATCH_SZ=16
+    gpu_memory_utilization=0.4
 fi
 
 #----------------------------------------------------
@@ -89,14 +99,15 @@ echo total_training_steps:$TOTAL_TRAINNING_STEPS
 echo "----------------------------------------------------"
 
 export VLLM_ATTENTION_BACKEND=XFORMERS
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
 
 python3 -u -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
     data.train_files="$train_files" \
     data.val_files="$test_files" \
-    data.train_batch_size=$((16 * N_NODES ))\
-    data.val_batch_size=$((16 * N_NODES )) \
+    data.train_batch_size=$((BASE_BATCH_SZ * N_NODES ))\
+    data.val_batch_size=$((BASE_BATCH_SZ * N_NODES )) \
     data.max_prompt_length=$max_prompt_length\
     data.max_response_length=$max_response_length \
     actor_rollout_ref.model.path=$MODEL_PATH \
@@ -114,7 +125,7 @@ python3 -u -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=160 \
     actor_rollout_ref.rollout.tensor_model_parallel_size=$TP_SZ \
     actor_rollout_ref.rollout.name=vllm \
-    actor_rollout_ref.rollout.gpu_memory_utilization=0.6 \
+    actor_rollout_ref.rollout.gpu_memory_utilization=$gpu_memory_utilization \
     actor_rollout_ref.rollout.temperature=$temperature \
     actor_rollout_ref.rollout.top_p=$top_p \
     actor_rollout_ref.rollout.top_k=$top_k \

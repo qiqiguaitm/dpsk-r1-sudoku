@@ -146,8 +146,8 @@ class Worker:
         num_gpu_blocks = int((free_gpu_memory * gpu_memory_utilization) // cache_block_size)
         # num_gpu_blocks = int((total_gpu_memory * gpu_memory_utilization - peak_memory) // cache_block_size)
         num_cpu_blocks = int(cpu_swap_space // cache_block_size)
-        num_gpu_blocks = max(num_gpu_blocks, 0)
         num_cpu_blocks = max(num_cpu_blocks, 0)
+        num_gpu_blocks = max(num_gpu_blocks, 0) - num_cpu_blocks
         if self.model_runner.lora_manager:
             self.model_runner.remove_all_loras()
         gc.collect()

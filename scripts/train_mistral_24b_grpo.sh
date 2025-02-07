@@ -136,6 +136,6 @@ python3 -u  -m verl.trainer.main_ppo \
     trainer.nnodes=$N_NODES \
     trainer.save_freq=20 \
     trainer.test_freq=20 \
-    trainer.total_epochs=5 2>&1 | tee $EXP_NAS_DIR/dpsk-zero.log
+    trainer.total_epochs=5 2>&1 | tee $EXP_SAVE_DIR/dpsk-zero.log
 
 
