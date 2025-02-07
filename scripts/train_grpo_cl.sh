@@ -50,10 +50,10 @@ export top_k=-1
 echo "--------------simple tasks---------------------"
 pre_task='none'
 cur_task='step0_boiling_simple'
-task_steps=$((base_training_steps / 2 ))
+task_steps=$((base_training_steps * 1 ))
 echo base_model cur_task max_response_length task_id pre_task task_steps
 echo $base_model $cur_task $max_response_length $task_id $pre_task $task_steps
-bash $WORK_DIR/verl/scripts/train_grpo_main.sh $base_model $max_response_length  $task_id $cur_task  $pre_task $task_steps > out.cl.o
+bash $WORK_DIR/verl/scripts/train_grpo_main.sh $base_model $max_response_length  $task_id $cur_task  $pre_task $task_steps
 if [ $? -eq 0 ]; then
     echo  $cur_task done
 else
@@ -63,7 +63,7 @@ fi
 echo "--------------medium tasks---------------------"
 pre_task='step0_boiling_simple'
 cur_task='step0_boiling_medium'
-task_steps=$((base_training_steps / 2 ))
+task_steps=$((base_training_steps * 1 ))
 echo base_model cur_task max_response_length task_id pre_task task_steps
 echo $base_model $cur_task $max_response_length $task_id $pre_task $task_steps
 bash $WORK_DIR/verl/scripts/train_grpo_main.sh $base_model $max_response_length  $task_id $cur_task  $pre_task $task_steps
@@ -76,7 +76,7 @@ fi
 echo "--------------hard tasks---------------------"
 pre_task='step0_boiling_medium'
 cur_task='step0_boiling_hard'
-task_steps=$((base_training_steps * 1))
+task_steps=$((base_training_steps * 2))
 echo base_model cur_task max_response_length task_id pre_task task_steps
 echo $base_model $cur_task $max_response_length $task_id $pre_task $task_steps
 bash $WORK_DIR/verl/scripts/train_grpo_main.sh $base_model $max_response_length  $task_id $cur_task  $pre_task $task_steps
