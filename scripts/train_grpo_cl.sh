@@ -47,10 +47,11 @@ export temperature=1.2
 export top_p=1.0
 export top_k=-1 
 
+:<<BLOCK
 echo "--------------simple tasks---------------------"
 pre_task='none'
 cur_task='step0_boiling_simple'
-task_steps=$((base_training_steps * 1 ))
+task_steps=$(awk "BEGIN {printf \"%.0f\", $base_training_steps * 0.5}")
 echo base_model cur_task max_response_length task_id pre_task task_steps
 echo $base_model $cur_task $max_response_length $task_id $pre_task $task_steps
 bash $WORK_DIR/verl/scripts/train_grpo_main.sh $base_model $max_response_length  $task_id $cur_task  $pre_task $task_steps
@@ -60,10 +61,13 @@ else
     echo $cur_task fail
     exit 1
 fi
+BLOCK
+
+
 echo "--------------medium tasks---------------------"
 pre_task='step0_boiling_simple'
 cur_task='step0_boiling_medium'
-task_steps=$((base_training_steps * 1 ))
+task_steps=$(awk "BEGIN {printf \"%.0f\", $base_training_steps * 1.0}")
 echo base_model cur_task max_response_length task_id pre_task task_steps
 echo $base_model $cur_task $max_response_length $task_id $pre_task $task_steps
 bash $WORK_DIR/verl/scripts/train_grpo_main.sh $base_model $max_response_length  $task_id $cur_task  $pre_task $task_steps
@@ -76,7 +80,7 @@ fi
 echo "--------------hard tasks---------------------"
 pre_task='step0_boiling_medium'
 cur_task='step0_boiling_hard'
-task_steps=$((base_training_steps * 2))
+task_steps=$(awk "BEGIN {printf \"%.0f\", $base_training_steps * 2.0}")
 echo base_model cur_task max_response_length task_id pre_task task_steps
 echo $base_model $cur_task $max_response_length $task_id $pre_task $task_steps
 bash $WORK_DIR/verl/scripts/train_grpo_main.sh $base_model $max_response_length  $task_id $cur_task  $pre_task $task_steps
@@ -95,7 +99,7 @@ export top_k=-1
 
 pre_task='step0_boiling_hard'
 cur_task='step1_anneling_hard'
-task_steps=$((base_training_steps * 2))
+task_steps=$(awk "BEGIN {printf \"%.0f\", $base_training_steps * 2.0}")
 echo base_model cur_task max_response_length task_id pre_task task_steps
 echo $base_model $cur_task $max_response_length $task_id $pre_task $task_steps
 bash $WORK_DIR/verl/scripts/train_grpo_main.sh $base_model $max_response_length  $task_id $cur_task  $pre_task $task_steps
@@ -113,7 +117,7 @@ export top_k=-1
 
 pre_task='step1_anneling_hard'
 cur_task='step2_anneling_hard'
-task_steps=$((base_training_steps * 1))
+task_steps=$(awk "BEGIN {printf \"%.0f\", $base_training_steps * 1.0}")
 echo base_model cur_task max_response_length task_id pre_task task_steps
 echo $base_model $cur_task $max_response_length $task_id $pre_task $task_steps
 bash $WORK_DIR/verl/scripts/train_grpo_main.sh $base_model $max_response_length  $task_id $cur_task  $pre_task  $task_steps
