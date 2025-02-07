@@ -3,13 +3,13 @@ export WORK_DIR="/nas/nfs/ofs-902-1/pnc/huggingface_hub/"
 cd $WORK_DIR
 base_model=${1:-Qwen2.5-7B-Instruct-1M} ##Qwen2.5-7B-Instruct-1M,Qwen2.5-14B-Instruct-1M,Mistral-Small-24B-Instruct-2501
 max_response_length=${2:-4096} # 2048,4096,    8192(risk to oom)
-specific_task_id=${3:-x-52020206094445-ddl2q}    #x-20250206094445-ddl2q #x-20250206061047-v9hz8 #x-20250206054952-qn6jb
+specific_task_id=${3:-x-99990206099999-ddl2q}    #x-20250206094445-ddl2q #x-20250206061047-v9hz8 #x-20250206054952-qn6jb
 base_training_steps=${4:-300}  #default:300
 
 #########starter#########
 #base_model=Qwen2.5-14B-Instruct-1M
 #max_response_length=4096
-#specific_task_id=y-52020207073827-c8vkm  #y-20250207073827-c8vkm
+#specific_task_id=y-99990207079999-c8vkm  #y-20250207073827-c8vkm
 #########starter#########
 
 
@@ -18,7 +18,7 @@ base_training_steps=${4:-300}  #default:300
 #max_response_length=512
 #DIST_MODE=1
 #MLP_TASK_ID=j-123
-#specific_task_id=z-52020207073823-jcnrg  #z-20250207073823-jcnrg
+#specific_task_id=z-99990207079999-jcnrg  #z-20250207073823-jcnrg
 #########testing#########
 
 
@@ -50,10 +50,10 @@ export top_k=-1
 echo "--------------simple tasks---------------------"
 pre_task='none'
 cur_task='step0_boiling_simple'
-task_steps=$((base_training_steps * 1))
+task_steps=$((base_training_steps / 2 ))
 echo base_model cur_task max_response_length task_id pre_task task_steps
 echo $base_model $cur_task $max_response_length $task_id $pre_task $task_steps
-bash $WORK_DIR/verl/scripts/train_grpo_main.sh $base_model $max_response_length  $task_id $cur_task  $pre_task $task_steps
+bash $WORK_DIR/verl/scripts/train_grpo_main.sh $base_model $max_response_length  $task_id $cur_task  $pre_task $task_steps > out.cl.o
 if [ $? -eq 0 ]; then
     echo  $cur_task done
 else
@@ -63,7 +63,7 @@ fi
 echo "--------------medium tasks---------------------"
 pre_task='step0_boiling_simple'
 cur_task='step0_boiling_medium'
-task_steps=$((base_training_steps * 1))
+task_steps=$((base_training_steps / 2 ))
 echo base_model cur_task max_response_length task_id pre_task task_steps
 echo $base_model $cur_task $max_response_length $task_id $pre_task $task_steps
 bash $WORK_DIR/verl/scripts/train_grpo_main.sh $base_model $max_response_length  $task_id $cur_task  $pre_task $task_steps
@@ -76,7 +76,7 @@ fi
 echo "--------------hard tasks---------------------"
 pre_task='step0_boiling_medium'
 cur_task='step0_boiling_hard'
-task_steps=$((base_training_steps * 2))
+task_steps=$((base_training_steps * 1))
 echo base_model cur_task max_response_length task_id pre_task task_steps
 echo $base_model $cur_task $max_response_length $task_id $pre_task $task_steps
 bash $WORK_DIR/verl/scripts/train_grpo_main.sh $base_model $max_response_length  $task_id $cur_task  $pre_task $task_steps

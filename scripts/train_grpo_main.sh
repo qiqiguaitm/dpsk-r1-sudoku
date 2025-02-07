@@ -68,6 +68,7 @@ fi
 export WANDB_API_KEY=e3dbe6853df66b090caae1511be35154c005d3c1
 export WANDB_MODE=offline
 export WANDB_DIR=$EXP_SAVE_DIR
+wandb init -p $WANDB_DIR/wandb
 #----------------------------------------------------
 
 
@@ -89,7 +90,7 @@ echo "----------------------------------------------------"
 export VLLM_ATTENTION_BACKEND=XFORMERS
 
 
-python3 -m verl.trainer.main_ppo \
+python3 -u -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
     data.train_files="$train_files" \
     data.val_files="$test_files" \
@@ -133,4 +134,4 @@ python3 -m verl.trainer.main_ppo \
     trainer.save_freq=8 \
     trainer.test_freq=8 \
     trainer.total_training_steps=$TOTAL_TRAINNING_STEPS \
-    trainer.total_epochs=15 2>&1 | tee ${EXP_NAS_DIR}/dpsk-zero.log
+    trainer.total_epochs=15 2>&1 | tee  $EXP_SAVE_DIR/dpsk-r0-sudoku-${TASK_ID}.log
