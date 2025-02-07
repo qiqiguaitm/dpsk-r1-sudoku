@@ -47,7 +47,7 @@ export temperature=1.2
 export top_p=1.0
 export top_k=-1 
 
-
+::<<COMMENT
 echo "--------------simple tasks---------------------"
 pre_task='none'
 cur_task='step0_boiling_simple'
@@ -61,10 +61,12 @@ else
     echo $cur_task fail
     exit 1
 fi
+COMMENT
 
 
 echo "--------------medium tasks---------------------"
-pre_task='step0_boiling_simple'
+#pre_task='step0_boiling_simple'
+pre_task='none'
 cur_task='step0_boiling_medium'
 task_steps=$(awk "BEGIN {printf \"%.0f\", $base_training_steps * 0.5}")
 echo base_model cur_task max_response_length task_id pre_task task_steps
@@ -76,6 +78,8 @@ else
     echo $cur_task fail
     exit 1
 fi
+
+
 echo "--------------hard tasks---------------------"
 pre_task='step0_boiling_medium'
 cur_task='step0_boiling_hard'

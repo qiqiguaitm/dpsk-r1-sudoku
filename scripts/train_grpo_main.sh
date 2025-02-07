@@ -68,11 +68,11 @@ elif [ $BASE_MODEL = "Qwen2.5-14B-Instruct-1M" ]; then
     gpu_memory_utilization=0.6
 elif [ $BASE_MODEL = "Mistral-Small-24B-Instruct-2501" ]; then
     TP_SZ=8
-    BASE_BATCH_SZ=16
+    BASE_BATCH_SZ=8
     gpu_memory_utilization=0.4
 elif [ $BASE_MODEL = "DeepSeek-R1-Distill-Qwen-32B" ]; then
     TP_SZ=8
-    BASE_BATCH_SZ=16
+    BASE_BATCH_SZ=8
     gpu_memory_utilization=0.4
 fi
 

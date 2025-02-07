@@ -2,20 +2,21 @@ import re
 from typing import Dict, Tuple, Optional
 import random
 
-def extract_question(response_str: str) -> Tuple[Optional[bool], str]:
+def extract_question(response_str: str,do_print:bool) -> Tuple[Optional[bool], str]:
     question_pattern = r'<\|im_start\|>user(.*?)<\|im_end\|>'
     matches = list(re.finditer(question_pattern, response_str, re.DOTALL))
     question_format_correct = False
     question_text = None
     if not matches:
-        print("[Error] No valid answer tags found")    
+        if do_print:
+            print("[Error] No valid answer tags found")    
         return question_format_correct,question_text
     else:
         question_format_correct = True
         question_text = matches[0].group(1).strip()
         return question_format_correct,question_text
     
-def extract_solution(solution_str: str) -> Tuple[Optional[str], str]:
+def extract_solution(solution_str: str,do_print:bool) -> Tuple[Optional[str], str]:
     """Extracts the final answer from the model's response string.
     
     Args:
@@ -30,7 +31,8 @@ def extract_solution(solution_str: str) -> Tuple[Optional[str], str]:
     elif "<|im_start|>assistant" in solution_str:
         processed_str = solution_str.split("<|im_start|>assistant", 1)[1]
     else:
-        print("[Error] Failed to locate model response header")
+        if do_print:
+            print("[Error] Failed to locate model response header")
         return None, solution_str
 
     # Extract final answer using XML-style tags
@@ -38,14 +40,15 @@ def extract_solution(solution_str: str) -> Tuple[Optional[str], str]:
     matches = list(re.finditer(answer_pattern, processed_str, re.DOTALL))
     
     if not matches:
-        print("[Error] No valid answer tags found")
+        if do_print:
+            print("[Error] No valid answer tags found")
         return None, processed_str
         
     final_answer = matches[-1].group(1).strip()
     return final_answer, processed_str
 
 
-def validate_response_structure(processed_str: str) -> bool:
+def validate_response_structure(processed_str: str,do_print:bool) -> bool:
     """Performs comprehensive validation of response structure.
     
     Args:
@@ -73,17 +76,20 @@ def validate_response_structure(processed_str: str) -> bool:
         print(f"  {tag_str}: count={count}, position={pos}")
         
         if count != expected_count:
-            print(f"  [Error] {tag_str} appears {count} times (expected {expected_count})")
+            if do_print:
+                print(f"  [Error] {tag_str} appears {count} times (expected {expected_count})")
             validation_passed = False
 
     # Verify tag order
     if (positions['think_start'] > positions['think_end'] or
         positions['think_end'] > positions['answer_start'] or
         positions['answer_start'] > positions['answer_end']):
-        print("  [Error] Incorrect tag order: Expected <think>...</think><answer>...</answer>")
+        if do_print:
+            print("  [Error] Incorrect tag order: Expected <think>...</think><answer>...</answer>")
         validation_passed = False
     else:
-        print("  Tag sequence validation passed")
+        if do_print:
+            print("  Tag sequence validation passed")
 
     return validation_passed
 
@@ -110,14 +116,14 @@ def compute_score(solution_str: str,
         print(" Processing New Sample ".center(80, '='))
         
     # Extract model answer
-    answer_text, processed_str = extract_solution(solution_str)
-    question_format_correct, question_text = extract_question(solution_str)
+    answer_text, processed_str = extract_solution(solution_st,do_print)
+    question_format_correct, question_text = extract_question(solution_str,do_print)
     assert question_format_correct == True
     
     if do_print:  
         print(f"\n[Model Response]\n{processed_str}")
     # Validate response structure
-    format_correct = validate_response_structure(processed_str)
+    format_correct = validate_response_structure(processed_str,do_print)
     format_score = format_reward if format_correct else -abs(format_reward)
     if do_print:  
         print(f"\n  Format validation: {'PASS' if format_correct else 'FAIL'}")
