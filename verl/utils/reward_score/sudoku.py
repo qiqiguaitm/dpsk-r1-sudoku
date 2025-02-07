@@ -57,7 +57,8 @@ def validate_response_structure(processed_str: str,do_print:bool) -> bool:
     Returns:
         Boolean indicating whether all formatting requirements are met
     """
-    print("\n[Structure Validation]")
+    if do_print:
+        print("\n[Structure Validation]")
     validation_passed = True
 
     # Check required tags
@@ -72,8 +73,8 @@ def validate_response_structure(processed_str: str,do_print:bool) -> bool:
     for tag_name, (tag_str, expected_count) in tags.items():
         count = processed_str.count(tag_str)
         positions[tag_name] = pos = processed_str.find(tag_str)
-        
-        print(f"  {tag_str}: count={count}, position={pos}")
+        if do_print:
+            print(f"  {tag_str}: count={count}, position={pos}")
         
         if count != expected_count:
             if do_print:
@@ -116,7 +117,7 @@ def compute_score(solution_str: str,
         print(" Processing New Sample ".center(80, '='))
         
     # Extract model answer
-    answer_text, processed_str = extract_solution(solution_st,do_print)
+    answer_text, processed_str = extract_solution(solution_str,do_print)
     question_format_correct, question_text = extract_question(solution_str,do_print)
     assert question_format_correct == True
     
