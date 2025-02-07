@@ -20,7 +20,7 @@ PROJ_NAME=dpskr0-cl
 EXP_NAME=${PROJ_NAME}-${TASK_ID}-${BASE_MODEL}-${CUR_TASK}-${N_NODES}-${N_GPUS}
 EXP_SAVE_DIR=$WORK_DIR/EXP_NAS_DIR/$EXP_NAME/
 mkdir -p $EXP_SAVE_DIR
-if [ -z "$PRE_TASK" ]; then
+if [[ -z "$PRE_TASK" ]] || [[ "$PRE_TASK" == "none" ]] || [[ "$PRE_TASK" == "NONE" ]]; then
     MODEL_PATH=${WORK_DIR}/MODEL_LINKS/${BASE_MODEL}
 else
     PRE_CKPT_PATH=$WORK_DIR/EXP_NAS_DIR/${PROJ_NAME}-${TASK_ID}-${BASE_MODEL}-${PRE_TASK}-${N_NODES}-${N_GPUS}/actor/
@@ -133,4 +133,4 @@ python3 -m verl.trainer.main_ppo \
     trainer.save_freq=8 \
     trainer.test_freq=8 \
     trainer.total_training_steps=$TOTAL_TRAINNING_STEPS \
-    trainer.total_epochs=15 2>&1 | tee ${ bg}/dpsk-zero.log
+    trainer.total_epochs=15 2>&1 | tee ${EXP_NAS_DIR}/dpsk-zero.log

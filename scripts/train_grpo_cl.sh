@@ -1,25 +1,25 @@
 #set -x
 export WORK_DIR="/nas/nfs/ofs-902-1/pnc/huggingface_hub/"
 cd $WORK_DIR
-base_model=$1 ##Qwen2.5-7B-Instruct-1M,Qwen2.5-14B-Instruct-1M,Mistral-Small-24B-Instruct-2501
-max_response_length=$2 # 2048,4096,    8192(risk to oom)
-resumed_task_id=$3
+base_model=${1:-Qwen2.5-7B-Instruct-1M} ##Qwen2.5-7B-Instruct-1M,Qwen2.5-14B-Instruct-1M,Mistral-Small-24B-Instruct-2501
+max_response_length=${2:-4096} # 2048,4096,    8192(risk to oom)
+specific_task_id=${3:-x-52020206094445-ddl2q}    #x-20250206094445-ddl2q #x-20250206061047-v9hz8 #x-20250206054952-qn6jb
+base_training_steps=${4:-300}  #default:300
 
-base_training_steps=1  #default:300
+#########starter#########
+#base_model=Qwen2.5-14B-Instruct-1M
+#max_response_length=4096
+#specific_task_id=y-52020207073827-c8vkm  #y-20250207073827-c8vkm
+#########starter#########
+
+
 #########testing#########
-base_model=Qwen2.5-7B-Instruct-1M
-max_response_length=512
+#base_model=Qwen2.5-7B-Instruct-1M
+#max_response_length=512
 #DIST_MODE=1
 #MLP_TASK_ID=j-123
-resume_task_id=x-1738853032
+#specific_task_id=z-52020207073823-jcnrg  #z-20250207073823-jcnrg
 #########testing#########
-
-#########starter#########
-#base_model=Qwen2.5-7B-Instruct-1M
-#max_response_length=8192
-#########starter#########
-
-
 
 
 
@@ -36,8 +36,8 @@ else
     export N_NODES=1
 fi
 
-if [ -n "$resume_task_id" ];then
-   task_id=$resume_task_id
+if [ -n "$specific_task_id" ];then
+   task_id=$specific_task_id
 fi
 
 
@@ -48,7 +48,7 @@ export top_p=1.0
 export top_k=-1 
 
 echo "--------------simple tasks---------------------"
-pre_task=''
+pre_task='none'
 cur_task='step0_boiling_simple'
 task_steps=$((base_training_steps * 1))
 echo base_model cur_task max_response_length task_id pre_task task_steps
