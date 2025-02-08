@@ -307,16 +307,16 @@ def compute_reward_metrics(batch):
     reward_metrics = {}
     reward_metrics["reward/mean"] = torch.mean(reward_tensor).detach().item()
     
-    all_correct = torch.sum( reward_tensor>=2.1 and  reward_tensor<=4.1 ).float() / reward_tensor.numel()
+    all_correct = torch.sum( (reward_tensor>=2.1) & (reward_tensor<=4.1) ).float() / reward_tensor.numel()
     reward_metrics["reward/all_correct_ratio"] = all_correct.detach().item()
    
-    all_correct = torch.sum( reward_tensor>=1.9 and  reward_tensor<=4.1 ).float() / reward_tensor.numel()
+    all_correct = torch.sum( (reward_tensor>=1.9) &  (reward_tensor<=4.1) ).float() / reward_tensor.numel()
     reward_metrics["reward/ans_correct_ratio"] = all_correct.detach().item()
    
-    format_error = torch.sum(reward_tensor>=-0.4 and reward_tensor<1.1 ).float() / reward_tensor.numel()
+    format_error = torch.sum( (reward_tensor>=-0.4) & (reward_tensor<1.1) ).float() / reward_tensor.numel()
     reward_metrics["reward/ans_error_ratio"] = format_error.detach().item()
     
-    format_error = torch.sum(reward_tensor>=-0.1 and reward_tensor<=0.3).float() / reward_tensor.numel()
+    format_error = torch.sum((reward_tensor>=-0.1) & (reward_tensor<=0.3) ).float() / reward_tensor.numel()
     reward_metrics["reward/no_answer_ratio"] = format_error.detach().item()
     
     return reward_metrics

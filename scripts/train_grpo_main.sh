@@ -1,4 +1,4 @@
-#set -x
+set -x
 export VLLM_ATTENTION_BACKEND=XFORMERS
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 #----------------------------------------------------
@@ -104,8 +104,8 @@ echo "----------------------------------------------------"
 export VLLM_ATTENTION_BACKEND=XFORMERS
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
-if [ $max_response_length -le 4096 ] ; then
 
+if [ $max_response_length -le 4096 ] ; then
 python3 -u -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
     data.train_files="$train_files" \
@@ -140,7 +140,7 @@ python3 -u -m verl.trainer.main_ppo \
     algorithm.kl_ctrl.kl_coef=0.001 \
     trainer.critic_warmup=0 \
     trainer.logger=['console','wandb'] \
-    +trainer.val_before_train=False \
+    +trainer.val_before_train=True \
     trainer.project_name=$PROJ_NAME \
     trainer.experiment_name=$EXP_NAME \
     trainer.default_hdfs_dir=null \
@@ -189,7 +189,7 @@ python3 -u -m verl.trainer.main_ppo \
     algorithm.kl_ctrl.kl_coef=0.001 \
     trainer.critic_warmup=0 \
     trainer.logger=['console','wandb'] \
-    +trainer.val_before_train=False \
+    +trainer.val_before_train=True \
     trainer.project_name=$PROJ_NAME \
     trainer.experiment_name=$EXP_NAME \
     trainer.default_hdfs_dir=null \
@@ -200,7 +200,6 @@ python3 -u -m verl.trainer.main_ppo \
     trainer.test_freq=8 \
     trainer.total_training_steps=$TOTAL_TRAINNING_STEPS \
     trainer.total_epochs=15 2>&1 | tee  ${EXP_SAVE_DIR}/dpsk-r0-sudoku-${TASK_ID}.log
-
 fi
 
 if [[ $max_response_length -eq 8192 ]] && [[  "$BASE_MODEL" == "DeepSeek-R1-Distill-Qwen-32B" ]]; then
@@ -227,24 +226,25 @@ python3 -u -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=1 \
     actor_rollout_ref.rollout.tensor_model_parallel_size=$TP_SZ \
     actor_rollout_ref.rollout.name=vllm \
-    actor_rollout_ref.rollout.gpu_memory_utilization=0.4 \
+    actor_rollout_ref.rollout.gpu_memory_utilization=0.5 \
     actor_rollout_ref.rollout.temperature=$temperature \
     actor_rollout_ref.rollout.top_p=$top_p \
     actor_rollout_ref.rollout.top_k=$top_k \
-    actor_rollout_ref.rollout.n=8 \
+    actor_rollout_ref.rollout.n=4 \
     actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=1 \
     actor_rollout_ref.ref.fsdp_config.param_offload=True \
     critic.ppo_micro_batch_size_per_gpu=1 \
     algorithm.kl_ctrl.kl_coef=0.0001 \
     trainer.critic_warmup=0 \
     trainer.logger=['console','wandb'] \
-    +trainer.val_before_train=False \
+    +trainer.val_before_train=True \
     trainer.project_name=$PROJ_NAME \
     trainer.experiment_name=$EXP_NAME \
     trainer.default_hdfs_dir=null \
     trainer.default_local_dir=${EXP_SAVE_DIR} \
     trainer.n_gpus_per_node=$N_GPUS \
     trainer.nnodes=$N_NODES \
+    trainer.val_before_train=False \
     trainer.save_freq=8 \
     trainer.test_freq=8 \
     trainer.total_training_steps=$TOTAL_TRAINNING_STEPS \

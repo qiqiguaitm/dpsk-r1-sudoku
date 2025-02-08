@@ -1,4 +1,4 @@
-#set -x
+set -x
 export WORK_DIR="/nas/nfs/ofs-902-1/pnc/huggingface_hub/"
 base_model=${1:-Qwen2.5-7B-Instruct-1M} ##Qwen2.5-7B-Instruct-1M,Qwen2.5-14B-Instruct-1M,DeepSeek-R1-Distill-Qwen-32B
 max_response_length=${2:-4096} # 2048,4096,8192
@@ -57,7 +57,7 @@ export top_k=-1
 echo "--------------simple tasks---------------------"
 pre_task='none'
 cur_task='step0_boiling_simple'
-task_steps=$(awk "BEGIN {printf \"%.0f\", $base_training_steps * 0.125}")
+task_steps=$(awk "BEGIN {printf \"%.0f\", $base_training_steps * 0.10}")
 echo base_model cur_task max_response_length task_id pre_task task_steps
 echo $base_model $cur_task $max_response_length $task_id $pre_task $task_steps
 bash $WORK_DIR/verl/scripts/train_grpo_main.sh $base_model $max_response_length  $task_id  $cur_task $pre_task $task_steps

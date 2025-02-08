@@ -16,7 +16,7 @@ A Ray logger will receive logging info from different processes.
 """
 import numbers
 from typing import Dict
-
+import datatime
 
 def concat_dict_to_str(dict: Dict, step):
     output = [f'step:{step}']
