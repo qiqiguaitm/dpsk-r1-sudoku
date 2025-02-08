@@ -109,7 +109,7 @@ def compute_score(solution_str: str,
     Returns:
         Total score (sum of format and answer rewards)
     """
-    do_print = random.randint(1, 64) == 1
+    do_print = random.randint(1, 16) == 1
     if do_print:  
         print("\n" + "="*80)
         print(f"Reasoning Process: {solution_str}")
@@ -121,8 +121,8 @@ def compute_score(solution_str: str,
     question_format_correct, question_text = extract_question(solution_str,do_print)
     assert question_format_correct == True
     
-    if do_print:  
-        print(f"\n[Model Response]\n{processed_str}")
+    #if do_print:  
+    #    print(f"\n[Model Response]\n{processed_str}")
         
         
     format_reward = 0.1
