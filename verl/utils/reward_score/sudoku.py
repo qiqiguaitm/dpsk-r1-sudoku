@@ -123,6 +123,9 @@ def compute_score(solution_str: str,
     
     if do_print:  
         print(f"\n[Model Response]\n{processed_str}")
+        
+        
+    format_reward = 0.1
     # Validate response structure
     format_correct = validate_response_structure(processed_str,do_print)
     format_score = format_reward if format_correct else -abs(format_reward)
@@ -134,7 +137,6 @@ def compute_score(solution_str: str,
     # Validate answer content
     answer_score = 0
     if answer_text:
-    #if format_correct and answer_text:
         answer_text = answer_text.replace(" ","").replace("\n","")
         question_text = question_text.replace(" ","").replace("\n","")
         ground_truth = ground_truth.replace(" ","").replace("\n","")
@@ -159,29 +161,23 @@ def compute_score(solution_str: str,
                     if do_print:  
                         print("  Content validation: GRID FULL MATCH; diffculity,blank_cnt,64:",diffculity,blank_cnt,64)
                 else:
-                    answer_score =  0.5 * match_ratio * diffculity
+                    answer_score =  0.5 + 0.5 * match_ratio * diffculity
                     if do_print:  
                         print("  Content validation: GRID MISMATCH; match_ratio,diff_cnt,blank_cnt:", match_ratio,diff_cnt,blank_cnt)
             else:
-                answer_score = -1.0 + 0.2
+                answer_score =  0.2
                 if do_print:  
                     print( "  Content validation: PUZZLE MISMATCH; matched_candidate's,matched_length,matched_puzzle:",matched_candidate,matched_length,matched_puzzle)
         else:
-            answer_score = -1.0 + 0.1
+            answer_score =  0.1
             if do_print:  
                 print( "  Content validation: LENGTH MISMATCH; matched_candidate,matched_length,matched_puzzle:",matched_candidate,matched_length,matched_puzzle)
             
     else:
-        answer_score = 0.0
+        answer_score = 0.0 
         if do_print:  
-            print("  Content validation: ERROR FORMAT OR NO ANSWER. ")
-
-    #### 答案格式错误      reward: -1.0 + 0.0 = -1.0
-    #### 答案无效内容      reward: 1.0 + -0.9  = 0.1
-    #### 填写错误位置      reward: 1.0 + -0.8 = 0.2
-    #### grid mismatch   reward: 1.0 +  0.5 * match_ratio * diffculity = (1, 1.5)
-    #### grid full match reward:  1.0 + 2.0 + 2.0*diffculity  = (3, 5)
-
+            print("  Content validation: NO ANSWER. ")
+            
     total_score = format_score + answer_score
     if do_print:  
         print("\n" + "-"*80)
