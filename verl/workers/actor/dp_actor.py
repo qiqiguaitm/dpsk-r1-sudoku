@@ -272,6 +272,7 @@ class DataParallelPPOActor(BasePPOActor):
                     loss = policy_loss * (len(data) / self.config.ppo_mini_batch_size)
                 else:
                     loss = policy_loss / self.gradient_accumulation
+
                 loss.backward()
 
                 data = {
@@ -285,5 +286,6 @@ class DataParallelPPOActor(BasePPOActor):
             grad_norm = self._optimizer_step()
             data = {'actor/grad_norm': grad_norm.detach().item()}
             append_to_dict(metrics, data)
+            torch.cuda.empty_cache()
         self.actor_optimizer.zero_grad()
         return metrics
