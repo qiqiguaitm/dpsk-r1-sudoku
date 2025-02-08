@@ -133,8 +133,8 @@ def compute_score(solution_str: str,
 
     # Validate answer content
     answer_score = 0
-    #if answer_text:
-    if format_correct and answer_text:
+    if answer_text:
+    #if format_correct and answer_text:
         answer_text = answer_text.replace(" ","").replace("\n","")
         question_text = question_text.replace(" ","").replace("\n","")
         ground_truth = ground_truth.replace(" ","").replace("\n","")
