@@ -109,7 +109,7 @@ def compute_score(solution_str: str,
     Returns:
         Total score (sum of format and answer rewards)
     """
-    do_print = random.randint(1, 64) == 1
+    do_print = random.randint(1, 8) == 1
     if do_print:  
         print("\n" + "="*80)
         print(f"Reasoning Process: {solution_str}")
@@ -133,6 +133,7 @@ def compute_score(solution_str: str,
 
     # Validate answer content
     answer_score = 0
+    #if answer_text:
     if format_correct and answer_text:
         answer_text = answer_text.replace(" ","").replace("\n","")
         question_text = question_text.replace(" ","").replace("\n","")
@@ -140,35 +141,46 @@ def compute_score(solution_str: str,
         question_regx = re.escape(question_text).replace('0','[1-9]')
         blank_cnt = question_text.count('0')
         
-        matched_len = (len(question_text) == len(answer_text)) 
-        matched_keep = re.fullmatch(question_regx, answer_text)
-        matched =  matched_len and matched_keep
+        matched_length = (len(question_text) == len(answer_text)) 
+        matched_puzzle = re.fullmatch(question_regx, answer_text)
+        matched_candidate =  matched_length and matched_puzzle
         
         diff_cnt = sum(c1 != c2 for c1, c2 in zip(answer_text, ground_truth))
         match_ratio = 1.0-diff_cnt/blank_cnt
         diffculity = blank_cnt/64.0        
-        if matched:
+        if matched_length:
             if do_print:  
                 print(f"\n[Content Validation]")
                 print(f"  Expected : {ground_truth}")
                 print(f"  Predicted: {answer_text}")
-            
-            if diff_cnt == 0:
-                answer_score = 2.0 + 2*diffculity
-                if do_print:  
-                    print("  Content validation: FULL MATCH. diffculity,blank_cnt,64:",diffculity,blank_cnt,64)
+            if matched_candidate:
+                if diff_cnt == 0:
+                    answer_score = 2.0 + 2.0 * diffculity
+                    if do_print:  
+                        print("  Content validation: GRID FULL MATCH; diffculity,blank_cnt,64:",diffculity,blank_cnt,64)
+                else:
+                    answer_score =  0.5 * match_ratio * diffculity
+                    if do_print:  
+                        print("  Content validation: GRID MISMATCH; match_ratio,diff_cnt,blank_cnt:", match_ratio,diff_cnt,blank_cnt)
             else:
-                answer_score = -1.5  + 1.0 * match_ratio
+                answer_score = -1.0 + 0.2
                 if do_print:  
-                    print("  Content validation: MISMATCH; match_ratio,diff_cnt,blank_cnt:", match_ratio,diff_cnt,blank_cnt)
+                    print( "  Content validation: PUZZLE MISMATCH; matched_candidate's,matched_length,matched_puzzle:",matched_candidate,matched_length,matched_puzzle)
         else:
-            answer_score = -2.0
-            print( "Fail to just fill blank position, matched,matched_len,matched_keep:",matched,matched_len,matched_keep)
+            answer_score = -1.0 + 0.1
+            if do_print:  
+                print( "  Content validation: LENGTH MISMATCH; matched_candidate,matched_length,matched_puzzle:",matched_candidate,matched_length,matched_puzzle)
             
     else:
+        answer_score = 0.0
         if do_print:  
-            print("\n[Content Validation] Skipped due to format errors or missing answer")
+            print("  Content validation: ERROR FORMAT OR NO ANSWER. ")
 
+    #### 答案格式错误      reward: -1.0 + 0.0 = -1.0
+    #### 答案无效内容      reward: 1.0 + -0.9  = 0.1
+    #### 填写错误位置      reward: 1.0 + -0.8 = 0.2
+    #### grid mismatch   reward: 1.0 +  0.5 * match_ratio * diffculity = (1, 1.5)
+    #### grid full match reward:  1.0 + 2.0 + 2.0*diffculity  = (3, 5)
 
     total_score = format_score + answer_score
     if do_print:  
