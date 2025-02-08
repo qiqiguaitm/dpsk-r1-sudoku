@@ -9,7 +9,7 @@ if [ -z "$TASK_ID" ]; then
     TASK_ID=x-$(date +%s)
 fi
 CUR_TASK=${4:-step0_boiling_simple}  #defalut:step0_boiling_simple
-PRE_TASK=${5:-''}
+PRE_TASK=${5:-'none'}
 TOTAL_TRAINNING_STEPS=${6:-500}
 
 temperature=${temperature:-1}
@@ -23,6 +23,8 @@ PROJ_NAME=dpskr0-cl
 EXP_NAME=${PROJ_NAME}-${TASK_ID}-${BASE_MODEL}-${CUR_TASK}-${N_NODES}-${N_GPUS}
 EXP_SAVE_DIR=$WORK_DIR/EXP_NAS_DIR/$EXP_NAME/
 mkdir -p $EXP_SAVE_DIR
+tar -zcf $EXP_SAVE_DIR/verl.tar.gz  $WORK_DIR/verl 
+
 if [[ -z "$PRE_TASK" ]] || [[ "$PRE_TASK" == "none" ]] || [[ "$PRE_TASK" == "NONE" ]]; then
     MODEL_PATH=${WORK_DIR}/MODEL_LINKS/${BASE_MODEL}
 else
@@ -214,25 +216,25 @@ python3 -u -m verl.trainer.main_ppo \
     actor_rollout_ref.model.enable_gradient_checkpointing=True \
     actor_rollout_ref.actor.optim.lr=1e-6 \
     actor_rollout_ref.model.use_remove_padding=True \
-    actor_rollout_ref.actor.ppo_mini_batch_size=64 \
-    actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=2\
+    actor_rollout_ref.actor.ppo_mini_batch_size=32 \
+    actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=1\
     actor_rollout_ref.actor.use_kl_loss=True \
     actor_rollout_ref.actor.kl_loss_coef=0.001 \
     actor_rollout_ref.actor.kl_loss_type=low_var_kl \
     actor_rollout_ref.actor.fsdp_config.param_offload=False \
     actor_rollout_ref.actor.fsdp_config.grad_offload=False \
     actor_rollout_ref.actor.fsdp_config.optimizer_offload=False \
-    actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=2 \
+    actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=1 \
     actor_rollout_ref.rollout.tensor_model_parallel_size=$TP_SZ \
     actor_rollout_ref.rollout.name=vllm \
-    actor_rollout_ref.rollout.gpu_memory_utilization=0.2 \
+    actor_rollout_ref.rollout.gpu_memory_utilization=0.4 \
     actor_rollout_ref.rollout.temperature=$temperature \
     actor_rollout_ref.rollout.top_p=$top_p \
     actor_rollout_ref.rollout.top_k=$top_k \
-    actor_rollout_ref.rollout.n=5 \
-    actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=2 \
+    actor_rollout_ref.rollout.n=8 \
+    actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=1 \
     actor_rollout_ref.ref.fsdp_config.param_offload=True \
-    critic.ppo_micro_batch_size_per_gpu=2 \
+    critic.ppo_micro_batch_size_per_gpu=1 \
     algorithm.kl_ctrl.kl_coef=0.0001 \
     trainer.critic_warmup=0 \
     trainer.logger=['console','wandb'] \

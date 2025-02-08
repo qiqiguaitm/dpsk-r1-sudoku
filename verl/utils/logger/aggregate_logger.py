@@ -39,4 +39,6 @@ class LocalLogger:
 
     def log(self, data, step):
         if self.print_to_console:
-            print(concat_dict_to_str(data, step=step), flush=True)
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            message = concat_dict_to_str(data, step=step)
+            print(f"[{timestamp}] {message}", flush=True)

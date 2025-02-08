@@ -1,10 +1,11 @@
 #set -x
 export WORK_DIR="/nas/nfs/ofs-902-1/pnc/huggingface_hub/"
-cd $WORK_DIR
 base_model=${1:-Qwen2.5-7B-Instruct-1M} ##Qwen2.5-7B-Instruct-1M,Qwen2.5-14B-Instruct-1M,DeepSeek-R1-Distill-Qwen-32B
-max_response_length=${2:-4096} # 2048,4096,    8192(risk to oom)
+max_response_length=${2:-4096} # 2048,4096,8192
 specific_task_id=${3:-x-99990206099999-ddl2q}    #x-20250206094445-ddl2q #x-20250206061047-v9hz8 #x-20250206054952-qn6jb
 base_training_steps=${4:-300}  #default:300
+cd $WORK_DIR
+
 
 #########starter#########
 #base_model=Qwen2.5-14B-Instruct-1M
@@ -45,7 +46,6 @@ fi
 if [ -n "$specific_task_id" ];then
    task_id=$specific_task_id
 fi
-
 
 
 echo "--------------step 0: all tasks boiling  ---------------------"

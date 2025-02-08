@@ -281,6 +281,47 @@ def compute_timing_metrics(batch, timing_raw):
     }
 
 
+    '''
+    1、推理格式不规范  -0.1
+        1.1 答案空：-0.1
+        1.2 答案长度不匹配 0.0
+        1.3 填错固定位置 0.1
+        1.4 答案错误 0.4-0.9
+        1.5 答案正确 1.9-3.9
+    2、推理格式规范 0.1
+        2.1 答案空 0.1
+        2.2 答案长度不匹配 0.2
+        2.3 填错固定位置 0.3
+        2.4 答案错误 0.6-1.1
+        2.5 答案正确 2.1-4.1
+        
+    => 
+    1、答案无效 [-0.1,0.3]; 
+    2、答案错误 [0.4,1.1); 
+    3、答案正确 [1.9,4.1]; 
+    4、答案+格式正确 [2.1,4.1]
+    '''
+def compute_reward_metrics(batch):
+    reward_tensor = batch.batch['token_level_scores'].sum(-1)
+
+    reward_metrics = {}
+    reward_metrics["reward/mean"] = torch.mean(reward_tensor).detach().item()
+    
+    all_correct = torch.sum( reward_tensor>=2.1 and  reward_tensor<=4.1 ).float() / reward_tensor.numel()
+    reward_metrics["reward/all_correct_ratio"] = all_correct.detach().item()
+   
+    all_correct = torch.sum( reward_tensor>=1.9 and  reward_tensor<=4.1 ).float() / reward_tensor.numel()
+    reward_metrics["reward/ans_correct_ratio"] = all_correct.detach().item()
+   
+    format_error = torch.sum(reward_tensor>=-0.4 and reward_tensor<1.1 ).float() / reward_tensor.numel()
+    reward_metrics["reward/ans_error_ratio"] = format_error.detach().item()
+    
+    format_error = torch.sum(reward_tensor>=-0.1 and reward_tensor<=0.3).float() / reward_tensor.numel()
+    reward_metrics["reward/no_answer_ratio"] = format_error.detach().item()
+    
+    return reward_metrics
+
+
 @contextmanager
 def _timer(name: str, timing_raw: Dict[str, float]):
     with Timer(name=name, logger=None) as timer:
@@ -666,6 +707,10 @@ class RayPPOTrainer(object):
                             actor_output = self.actor_rollout_wg.update_actor(batch)
                         actor_output_metrics = reduce_metrics(actor_output.meta_info['metrics'])
                         metrics.update(actor_output_metrics)
+                    
+                    # reward
+                    reward_metrics = compute_reward_metrics(batch)
+                    metrics.update(reward_metrics)
 
                     # validate
                     if self.val_reward_fn is not None and self.config.trainer.test_freq > 0 and \
