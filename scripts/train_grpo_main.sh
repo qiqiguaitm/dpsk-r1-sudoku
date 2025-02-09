@@ -16,7 +16,11 @@ temperature=${temperature:-1}
 top_p=${top_p:-1}
 top_k=${top_k:--1}
 N_GPUS=${N_GPUS:-8}
-N_NODES=${N_GNODES:-1}
+N_NODES=${N_NODES:-1}
+if [ -n "$DIST_MODE" ]; then
+    N_NODES=4
+fi
+
 #----------------------------------------------------
 WORK_DIR="/nas/nfs/ofs-902-1/pnc/huggingface_hub/"
 PROJ_NAME=dpskr0-cl
@@ -61,7 +65,11 @@ train_files="['$DATA_DIR/train.parquet']"
 test_files="['$DATA_DIR/test.parquet']"
 max_prompt_length=512
 max_response_length=$MAX_RESP_LEN  #default 4096
-if [[ $BASE_MODEL = "Qwen2.5-7B-Instruct-1M" ]] || [[ $BASE_MODEL = "DeepSeek-R1-Distill-Qwen-7B" ]] ; then
+if [[ $BASE_MODEL = "DeepSeek-R1-Distill-Qwen-1.5B" ]] ; then
+    TP_SZ=1
+    BASE_BATCH_SZ=16
+    gpu_memory_utilization=0.5
+elif [[ $BASE_MODEL = "Qwen2.5-7B-Instruct-1M" ]] || [[ $BASE_MODEL = "DeepSeek-R1-Distill-Qwen-7B" ]] ; then
     TP_SZ=4
     BASE_BATCH_SZ=16
     gpu_memory_utilization=0.5
@@ -105,7 +113,7 @@ export VLLM_ATTENTION_BACKEND=XFORMERS
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
 
-if [ $max_response_length -le 4096 ] ; then
+if [[ $max_response_length -le 4096 ]] || [[  $BASE_MODEL == "DeepSeek-R1-Distill-Qwen-1.5B" ]]; then
 python3 -u -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
     data.train_files="$train_files" \
@@ -133,14 +141,14 @@ python3 -u -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.temperature=$temperature \
     actor_rollout_ref.rollout.top_p=$top_p \
     actor_rollout_ref.rollout.top_k=$top_k \
-    actor_rollout_ref.rollout.n=4 \
+    actor_rollout_ref.rollout.n=8 \
     actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=160 \
     actor_rollout_ref.ref.fsdp_config.param_offload=True \
     critic.ppo_micro_batch_size_per_gpu=64 \
     algorithm.kl_ctrl.kl_coef=0.001 \
     trainer.critic_warmup=0 \
     trainer.logger=['console','wandb'] \
-    +trainer.val_before_train=True \
+    +trainer.val_before_train=False \
     trainer.project_name=$PROJ_NAME \
     trainer.experiment_name=$EXP_NAME \
     trainer.default_hdfs_dir=null \
@@ -189,7 +197,7 @@ python3 -u -m verl.trainer.main_ppo \
     algorithm.kl_ctrl.kl_coef=0.001 \
     trainer.critic_warmup=0 \
     trainer.logger=['console','wandb'] \
-    +trainer.val_before_train=True \
+    +trainer.val_before_train=False \
     trainer.project_name=$PROJ_NAME \
     trainer.experiment_name=$EXP_NAME \
     trainer.default_hdfs_dir=null \
@@ -238,7 +246,7 @@ python3 -u -m verl.trainer.main_ppo \
     algorithm.kl_ctrl.kl_coef=0.001 \
     trainer.critic_warmup=0 \
     trainer.logger=['console','wandb'] \
-    +trainer.val_before_train=True \
+    +trainer.val_before_train=False \
     trainer.project_name=$PROJ_NAME \
     trainer.experiment_name=$EXP_NAME \
     trainer.default_hdfs_dir=null \
