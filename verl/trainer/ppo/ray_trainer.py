@@ -287,19 +287,19 @@ def compute_timing_metrics(batch, timing_raw):
         1.2 答案长度不匹配 0.0
         1.3 填错固定位置 0.1
         1.4 答案错误 0.4-0.9
-        1.5 答案正确 1.9-3.9
+        1.5 答案正确 4.9-9.9
     2、推理格式规范 0.1
         2.1 答案空 0.1
         2.2 答案长度不匹配 0.2
         2.3 填错固定位置 0.3
         2.4 答案错误 0.6-1.1
-        2.5 答案正确 2.1-4.1
+        2.5 答案正确 5.1-10.1
         
     => 
     1、答案无效 [-0.1,0.3]; 
     2、答案错误 [0.4,1.1); 
-    3、答案正确 [1.9,4.1]; 
-    4、答案+格式正确 [2.1,4.1]
+    3、答案正确 [4.9,10.1]; 
+    4、答案+格式正确 [5.1,10.1]
     '''
 def compute_reward_metrics(batch):
     reward_tensor = batch.batch['token_level_scores'].sum(-1)
@@ -307,10 +307,10 @@ def compute_reward_metrics(batch):
     reward_metrics = {}
     reward_metrics["reward/mean"] = torch.mean(reward_tensor).detach().item()
     
-    all_correct = torch.sum( (reward_tensor>=2.1) & (reward_tensor<=4.1) ).float() / reward_tensor.numel()
+    all_correct = torch.sum( (reward_tensor>=5.1) & (reward_tensor<=10.1) ).float() / reward_tensor.numel()
     reward_metrics["reward/all_correct_ratio"] = all_correct.detach().item()
    
-    all_correct = torch.sum( (reward_tensor>=1.9) &  (reward_tensor<=4.1) ).float() / reward_tensor.numel()
+    all_correct = torch.sum( (reward_tensor>=4.9) &  (reward_tensor<=10.1) ).float() / reward_tensor.numel()
     reward_metrics["reward/ans_correct_ratio"] = all_correct.detach().item()
    
     format_error = torch.sum( (reward_tensor>=-0.4) & (reward_tensor<1.1) ).float() / reward_tensor.numel()
@@ -619,7 +619,9 @@ class RayPPOTrainer(object):
         self.global_steps += 1
 
         for epoch in range(self.config.trainer.total_epochs):
+            torch.cuda.empty_cache()  
             for batch_dict in self.train_dataloader:
+                torch.cuda.empty_cache()  
                 metrics = {}
                 timing_raw = {}
 

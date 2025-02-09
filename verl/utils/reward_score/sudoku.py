@@ -157,7 +157,7 @@ def compute_score(solution_str: str,
                 print(f"  Predicted: {answer_text}")
             if matched_candidate:
                 if diff_cnt == 0:
-                    answer_score = 2.0 + 2.0 * diffculity
+                    answer_score = 5.0 + 5.0 * diffculity
                     if do_print:  
                         print("  Content validation: GRID FULL MATCH; diffculity,blank_cnt,64:",diffculity,blank_cnt,64)
                 else:
@@ -184,19 +184,19 @@ def compute_score(solution_str: str,
         1.2 答案长度不匹配 0.0
         1.3 填错固定位置 0.1
         1.4 答案错误 0.4-0.9
-        1.5 答案正确 1.9-3.9
+        1.5 答案正确 4.9-9.9
     2、推理格式规范 0.1
         2.1 答案空 0.1
         2.2 答案长度不匹配 0.2
         2.3 填错固定位置 0.3
         2.4 答案错误 0.6-1.1
-        2.5 答案正确 2.1-4.1
+        2.5 答案正确 5.1-10.1
         
     => 
     1、答案无效 [-0.1,0.3]; 
     2、答案错误 [0.4,1.1); 
-    3、答案正确 [1.9,4.1]; 
-    4、答案+格式正确 [2.1,4.1]
+    3、答案正确 [4.9,10.1]; 
+    4、答案+格式正确 [5.1,10.1]
     '''
             
     total_score = format_score + answer_score
