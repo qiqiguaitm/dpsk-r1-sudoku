@@ -16,9 +16,11 @@ temperature=${temperature:-1}
 top_p=${top_p:-1}
 top_k=${top_k:--1}
 N_GPUS=${N_GPUS:-8}
-N_NODES=${N_NODES:-1}
+
 if [ -n "$DIST_MODE" ]; then
-    N_NODES=4
+    N_NODES=$N_NODES
+else
+    N_NODES=${N_NODES:-1}
 fi
 
 #----------------------------------------------------
@@ -51,11 +53,20 @@ cd $WORK_DIR
 
 
 if [[ $CUR_TASK == *simple* ]]; then
-    DATASET_NAME=cl_sudoku_simple_20480   ### 20480, 102400
+    #DATASET_NAME=cl_sudoku_simple_20480   ### 20480, 102400
+    #max_prompt_length=512
+    DATASET_NAME=cl_sudoku_tips_simple_10240  
+    max_prompt_length=1054
 elif [[ $CUR_TASK == *medium* ]]; then
-    DATASET_NAME=cl_sudoku_medium_20480
+    #DATASET_NAME=cl_sudoku_medium_20480
+    #max_prompt_length=512
+    DATASET_NAME=cl_sudoku_tips_medium_10240
+    max_prompt_length=1054
 elif [[ $CUR_TASK == *hard* ]]; then
-    DATASET_NAME=cl_sudoku_hard_20480
+    #DATASET_NAME=cl_sudoku_hard_20480
+    #max_prompt_length=512
+    DATASET_NAME=cl_sudoku_tips_hard_20480
+    max_prompt_length=1054
 else
     echo "DATASET_NAME ERROR, EXITING"
     exit 1
@@ -63,7 +74,7 @@ fi
 DATA_DIR=$WORK_DIR/verl/datasets/$DATASET_NAME/
 train_files="['$DATA_DIR/train.parquet']"
 test_files="['$DATA_DIR/test.parquet']"
-max_prompt_length=512
+
 max_response_length=$MAX_RESP_LEN  #default 4096
 if [[ $BASE_MODEL = "DeepSeek-R1-Distill-Qwen-1.5B" ]] ; then
     TP_SZ=1
@@ -261,6 +272,9 @@ python3 -u -m verl.trainer.main_ppo \
 fi
 #20480
 if [[ $max_response_length -eq 20480 ]] && [[  $BASE_MODEL != "DeepSeek-R1-Distill-Qwen-32B" ]]; then
+temperature=1.1
+top_p=1.0
+top_k=-1
 python3 -u -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
     data.train_files="$train_files" \
